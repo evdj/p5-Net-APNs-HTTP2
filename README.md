@@ -7,13 +7,32 @@ Net::APNs::HTTP2 - APNs Provider API for Perl
 
     use Net::APNs::HTTP2;
 
-    my $apns = Net::APNs::HTTP2->new(
+    my %opts;
+
+    $opts = {
         is_development => 1,
-        auth_key       => 'auth_key.p8',
+        cert_file      => '/path/to/pushcertificate.pem',
+        cert_password  => 'mykeysecret',
         key_id         => $key_id,
         team_id        => $team_id,
         bundle_id      => $bundle_id,
-    );
+    };
+
+    #
+    # Use auth_key, auth_password, key_id, team_id
+    # if you want to use provider token based authentication
+    # (using JWT)
+    #
+    $opts = {
+        is_development => 1,
+        auth_key       => '/path/to/auth_key.p8.pem',
+        auth_password  => 'mykeysecret',
+        key_id         => $key_id,
+        team_id        => $team_id,
+        bundle_id      => $bundle_id,
+    };
+
+    my $apns = Net::APNs::HTTP2->new( %opts );
 
     while (1) {
         $apns->prepare($device_token, {
@@ -62,6 +81,23 @@ Supported arguments are:
 
         openssl pkcs8 -in AuthKey_XXXXXXXXXX.p8 -inform PEM -out auth_key.p8 -outform PEM -nocrypt
 
+- auth_password : Str
+
+    Password (optional) for the Universal Push Notification Client SSL Certificate.
+
+- cert\_file : File Path
+
+    APNS Provider certificate.
+    This should be in PEM format, or any other format the underlying Crypt code can handle.
+
+- cert : Str
+
+    APNS Provider certificate in PEM format as a string.
+
+- cert_password : Str
+
+    Password (optional) for the Provider certificate
+
 - key\_id : Str
 
     A 10-character key identifier (kid) key, obtained from your developer account.
@@ -100,7 +136,7 @@ Create a request.
         ...
     });
 
-You can chainged call
+You can chain calls
 
     $apns->prepare(...)->prepare(...)->prepare(...)->send();
 
@@ -122,3 +158,7 @@ it under the same terms as Perl itself.
 # AUTHOR
 
 xaicron <xaicron@gmail.com>
+
+# CONTRIBUTORS
+
+Edward van der Jagt <edward@caret.net>
